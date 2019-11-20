@@ -1,11 +1,13 @@
 # Create your views here.
+from django.contrib import messages
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required  # 追加
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404, redirect
+from django.views.decorators.http import require_POST
 
-from .forms import PhotoForm  # 追加
+from .forms import PhotoForm
 from .models import Photo
 
 
@@ -46,7 +48,20 @@ def photos_new(request):
             photo = form.save(commit=False)  # ③
             photo.user = request.user  # ④
             photo.save()  # ⑤
+            messages.success(request, "投稿が完了しました！")
         return redirect('app:users_detail', pk=request.user.pk)
     else:
         form = PhotoForm()
     return render(request, 'app/photos_new.html', {'form': form})
+
+
+@require_POST
+def photos_delete(request, pk):
+    photo = get_object_or_404(Photo, pk=pk)
+    photo.delete()
+    return redirect('app:users_detail', request.user.id)
+
+
+def photos_detail(request, pk):
+    photo = get_object_or_404(Photo, pk=pk)
+    return render(request, 'app/photos_detail.html', {'photo': photo})

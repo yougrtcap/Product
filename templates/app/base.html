@@ -20,6 +20,9 @@
             {% else %}
                 <a href="{% url 'app:login' %}">ログイン</a>
             {% endif %}
+            {% for message in messages %}
+                <p class="message-success">{{ message }}</p>
+            {% endfor %}
         </div>
     </div>
 </header>

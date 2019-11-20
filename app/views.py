@@ -1,9 +1,11 @@
 # Create your views here.
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required  # 追加
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404, redirect
 
+from .forms import PhotoForm  # 追加
 from .models import Photo
 
 
@@ -34,3 +36,17 @@ def signup(request):
     else:
         form = UserCreationForm()
     return render(request, 'app/signup.html', {'form': form})
+
+
+@login_required  # ①
+def photos_new(request):
+    if request.method == "POST":
+        form = PhotoForm(request.POST, request.FILES)  # ②
+        if form.is_valid():
+            photo = form.save(commit=False)  # ③
+            photo.user = request.user  # ④
+            photo.save()  # ⑤
+        return redirect('app:users_detail', pk=request.user.pk)
+    else:
+        form = PhotoForm()
+    return render(request, 'app/photos_new.html', {'form': form})

@@ -8,6 +8,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 
 from .forms import PhotoForm
+from .models import Category
 from .models import Photo
 
 
@@ -65,3 +66,11 @@ def photos_delete(request, pk):
 def photos_detail(request, pk):
     photo = get_object_or_404(Photo, pk=pk)
     return render(request, 'app/photos_detail.html', {'photo': photo})
+
+
+def photos_category(request, category):
+    # titleがURLの文字列と一致するCategoryインスタンスを取得
+    category = Category.objects.get(title=category)
+    # 取得したCategoryに属するPhoto一覧を取得
+    photos = Photo.objects.filter(category=category).order_by('-created_at')
+    return render(request, 'app/index.html', {'photos': photos, 'category': category})
